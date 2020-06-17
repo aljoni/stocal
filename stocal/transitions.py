@@ -26,6 +26,7 @@ novel transitions during the course of a stochastic simulation.
 """
 
 import abc
+import cstocal
 import warnings
 
 from ._utils import with_metaclass
@@ -37,6 +38,8 @@ class Transition(with_metaclass(abc.ABCMeta, object)):
 
     Transitions define reactants and products, but not the kinetic
     law of the transformation. Consult MassAction and Event for the most
+
+
     common rate law implementations.
 
     Transition instances provide the attributes self.reactants and
@@ -268,7 +271,7 @@ class Reaction(Transition):
             return minimize(fun).x
 
 
-class MassAction(Reaction):
+class MassAction(cstocal.MassAction, Reaction):
     """Reactions with mass action kinetics.
 
     The propensity of a mass action reaction is defined as the
@@ -291,7 +294,7 @@ class MassAction(Reaction):
         except AttributeError:
             return super(MassAction, self).__repr__()
 
-    def propensity(self, state):
+    def old_propensity(self, state):
         """Reaction propensity for the given state.
 
         Calling propensity does not modify the underlying reaction.

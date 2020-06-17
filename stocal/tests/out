@@ -1,0 +1,6 @@
+repr(state) = multiset({})
+repr(state) = multiset({})
+repr(state) = multiset({'a': 20})
+repr(state) = multiset({'a': 12, 'b': 8})
+repr(state) = multiset({'a': 12, 'b': 8})
+repr(state) = multiset({'a': 12, 'b': 8})

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, Extension
 
 def readme():
     with open('README.md') as f:
@@ -28,4 +28,6 @@ setup(name = "stocal",
       include_package_data=True,
       zip_safe = True,
       test_suite = 'stocal.tests',
-      install_requires=['pqdict'])
+      install_requires=['pqdict'],
+      ext_modules=[Extension('cstocal', ['cstocal/cstocal.c'])]
+)

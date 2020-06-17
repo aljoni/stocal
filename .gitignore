@@ -3,3 +3,6 @@ build/
 dist/
 validation_data/
 stocal.egg-info/
+*.swp
+*.swn
+*.swo

@@ -30,30 +30,22 @@ static int choose(int n, int k)
 }
 
 static PyObject *
-MassAction_propensity(PyObject *self, PyObject *state)
+MassAction_propensity(PyObject *self, PyObject *args)
 {
-  // PyObject *state;
-  // if (!PyArg_ParseTuple(args, "O", &state)) {
-  //   return NULL;
-  // }
-  
+  PyObject *state;
+  if (!PyArg_ParseTuple(args, "O", &state)) {
+    return NULL;
+  }
+
   // Import 'stocal.structures.multiset'
   PyObject *structures = PyImport_ImportModule("stocal.structures");
   if (structures == NULL) {
     return NULL;
   }
   PyObject *multiset = PyObject_GetAttrString(structures, "multiset");
-  
-  if (state == NULL || multiset == NULL) {
-    printf("Someone was null!\n");
-  }
 
   // Ensure 'state' is a 'multiset'
-  int r = PyObject_IsInstance(state, multiset);
-  if (r == -1) {
-    return NULL;
-  }
-  if (r == 0) {
+  if (!PyObject_IsInstance(state, multiset)) {
     PyObject *fnargs = Py_BuildValue("(O)", state);
     PyObject *temp = PyObject_CallObject(multiset, fnargs);
     Py_DECREF(fnargs);
@@ -68,7 +60,7 @@ MassAction_propensity(PyObject *self, PyObject *state)
 
   // Check if state is empty
   if (PyDict_Size(state) == 0) {
-    // Py_DECREF(state);
+    Py_DECREF(state);
     return PyFloat_FromDouble(0.0);
   }
 
@@ -76,7 +68,7 @@ MassAction_propensity(PyObject *self, PyObject *state)
   PyObject *constant = PyObject_GetAttrString(self, "constant");
   if (constant == NULL) {
     PyErr_SetString(PyExc_Exception, "constant not defined");
-    // Py_DECREF(state);
+    Py_DECREF(state);
     return NULL;
   }
 
@@ -87,20 +79,20 @@ MassAction_propensity(PyObject *self, PyObject *state)
 
   // Check if constant was infinity
   if (PyObject_RichCompareBool(constant, inf, Py_EQ)) {
-    // Py_DECREF(state);
+    Py_DECREF(state);
     return inf;
   }
 
   PyObject *reactants = PyObject_GetAttrString(self, "reactants");
   if (reactants == NULL) {
     PyErr_SetString(PyExc_Exception, "reactants not defined");
-    // Py_DECREF(state);
+    Py_DECREF(state);
     return NULL;
   }
 
   double a = PyFloat_AsDouble(constant);
   PyObject *s, *n, *stateval;
-  Py_ssize_t pos = 0;
+  Py_ssize_t pos = 0; 
   
   while (PyDict_Next(reactants, &pos, &s, &n)) {
     long reactlng = PyLong_AsLong(n);
@@ -122,12 +114,12 @@ MassAction_propensity(PyObject *self, PyObject *state)
     a *= choose(statelng, reactlng);
   }
 
-  // Py_DECREF(state);
+  Py_DECREF(state);
   return PyFloat_FromDouble(a);
 }
 
 static PyMethodDef MassActionMethods[] = {
-  {"propensity", (PyCFunction) MassAction_propensity, METH_O, "Reaction propensity for the given state."},
+  {"propensity", (PyCFunction) MassAction_propensity, METH_VARARGS, "Reaction propensity for the given state."},
   {NULL} // Sentinel
 };
 

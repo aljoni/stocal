@@ -32,11 +32,6 @@ static int choose(int n, int k)
 static PyObject *
 MassAction_propensity(PyObject *self, PyObject *state)
 {
-  // PyObject *state;
-  // if (!PyArg_ParseTuple(args, "O", &state)) {
-  //   return NULL;
-  // }
-  
   // Import 'stocal.structures.multiset'
   PyObject *structures = PyImport_ImportModule("stocal.structures");
   if (structures == NULL) {
@@ -66,18 +61,17 @@ MassAction_propensity(PyObject *self, PyObject *state)
     state = temp;
   }
 
-  // Check if state is empty
-  if (PyDict_Size(state) == 0) {
-    // Py_DECREF(state);
-    return PyFloat_FromDouble(0.0);
-  }
-
   // Calculate propensity
   PyObject *constant = PyObject_GetAttrString(self, "constant");
   if (constant == NULL) {
     PyErr_SetString(PyExc_Exception, "constant not defined");
-    // Py_DECREF(state);
     return NULL;
+  }
+
+  // Check if state is empty
+  if (PyDict_Size(state) == 0) {
+    return constant;
+    // return PyFloat_FromDouble(0.0);
   }
 
   // Define infinity
@@ -87,14 +81,12 @@ MassAction_propensity(PyObject *self, PyObject *state)
 
   // Check if constant was infinity
   if (PyObject_RichCompareBool(constant, inf, Py_EQ)) {
-    // Py_DECREF(state);
     return inf;
   }
 
   PyObject *reactants = PyObject_GetAttrString(self, "reactants");
   if (reactants == NULL) {
     PyErr_SetString(PyExc_Exception, "reactants not defined");
-    // Py_DECREF(state);
     return NULL;
   }
 
@@ -111,18 +103,9 @@ MassAction_propensity(PyObject *self, PyObject *state)
       statelng = PyLong_AsLong(stateval);
     }
 
-    /*
-    if (stateval == NULL) {
-      const char *sstr = PyUnicode_AsUTF8(s);
-      PyErr_Format(PyExc_Exception, "key '%s' not found in state", sstr);
-      return NULL;
-    }
-    */
-
     a *= choose(statelng, reactlng);
   }
 
-  // Py_DECREF(state);
   return PyFloat_FromDouble(a);
 }
 

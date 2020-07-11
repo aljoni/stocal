@@ -48,7 +48,7 @@ MassAction_propensity(PyObject *self, PyObject *state)
   if (r == -1) {
     return NULL;
   }
-  if (r == 0) {
+  else if (r == 0) {
     PyObject *fnargs = Py_BuildValue("(O)", state);
     PyObject *temp = PyObject_CallObject(multiset, fnargs);
     Py_DECREF(fnargs);
@@ -107,6 +107,39 @@ MassAction_propensity(PyObject *self, PyObject *state)
   }
 
   return PyFloat_FromDouble(a);
+}
+
+static PyObject *
+MassAction_richcompare(PyObject *a, PyObject *b, int op)
+{
+  if (op == Py_EQ) {
+    // Import 'stocal.transitions.MassAction'
+    PyObject *transitions = PyImport_ImportModule("stocal.transitions");
+    if (transitions == NULL) {
+      return NULL;
+    }
+    PyObject *MassAction = PyObject_GetAttrString(transitions, "MassAction");
+    
+    // TODO: Check super equals
+    
+    // Check if 'b' is instance of 'MassAction'
+    int r = PyObject_IsInstance(b, MassAction);
+    if (r == -1) {
+      return NULL;
+    }
+    else if (r == 0) {
+      Py_RETURN_FALSE
+    }
+    
+    // Compare constants
+    PyObject *a_constant = PyObject_GetAttrString(a, "constant");
+    PyObject *b_constant = PyObject_GetAttrString(b, "constant");
+    if (PyBool_Check(PyObject_RichCompare(a_constant, b_constant, Py_EQ)) == 0) {
+      Py_RETURN_FALSE
+    }
+  }
+  
+  Py_RETURN_FALSE
 }
 
 static PyMethodDef MassActionMethods[] = {
